@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algebra 2 Grade Calculator</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 10px;
+            font-size: 1.8em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 25px;
+            font-size: 0.95em;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .input-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .input-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-item label {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+
+        .input-item .weight {
+            font-weight: normal;
+            color: #888;
+            font-size: 0.85em;
+        }
+
+        .input-item input {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1.1em;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+
+        .input-item input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .input-item input:invalid {
+            border-color: #e74c3c;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .current-status {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .current-status h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 1em;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: white;
+            border-radius: 6px;
+        }
+
+        .status-item .label {
+            color: #666;
+        }
+
+        .status-item .value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .results-table th,
+        .results-table td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        .results-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .results-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .grade-needed {
+            font-weight: 700;
+            font-size: 1.1em;
+        }
+
+        .achievable {
+            color: #27ae60;
+        }
+
+        .difficult {
+            color: #f39c12;
+        }
+
+        .unlikely {
+            color: #e74c3c;
+        }
+
+        .impossible {
+            color: #95a5a6;
+            text-decoration: line-through;
+        }
+
+        .note {
+            font-size: 0.85em;
+            color: #666;
+            font-style: italic;
+            margin-top: 15px;
+            padding: 10px;
+            background: #fff3cd;
+            border-radius: 6px;
+        }
+
+        .weights-info {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        #results {
+            display: none;
+        }
+
+        .scenario-note {
+            font-size: 0.8em;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Algebra 2 Grade Calculator</h1>
+        <p class="subtitle">Calculate what's needed to reach end-of-year grade goals</p>
+
+        <div class="card">
+            <h2>Enter Current Grades</h2>
+            <div class="input-group">
+                <div class="input-item">
+                    <label>Quarter 1 <span class="weight">(22%)</span></label>
+                    <input type="number" id="q1" min="0" max="100" placeholder="0-100">
+                </div>
+                <div class="input-item">
+                    <label>Quarter 2 <span class="weight">(22%)</span></label>
+                    <input type="number" id="q2" min="0" max="100" placeholder="0-100">
+                </div>
+                <div class="input-item">
+                    <label>Midterm <span class="weight">(4%)</span></label>
+                    <input type="number" id="midterm" min="0" max="100" placeholder="0-100">
+                </div>
+            </div>
+            <button onclick="calculate()">Calculate Requirements</button>
+            <p class="weights-info">
+                <strong>Grade Weights:</strong> Q1 (22%) + Q2 (22%) + Q3 (22%) + Q4 (22%) + Midterm (4%) + Regents (8%) = 100%
+            </p>
+        </div>
+
+        <div class="card" id="results">
+            <h2>Results</h2>
+
+            <div class="current-status">
+                <h3>Current Standing (48% of final grade)</h3>
+                <div class="status-grid">
+                    <div class="status-item">
+                        <span class="label">Points Earned:</span>
+                        <span class="value" id="points-earned">--</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="label">Points Possible:</span>
+                        <span class="value">48</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="label">Current Average:</span>
+                        <span class="value" id="current-avg">--</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="label">Remaining Weight:</span>
+                        <span class="value">52%</span>
+                    </div>
+                </div>
+            </div>
+
+            <h3>What's Needed for Each Target Grade</h3>
+            <p class="scenario-note">Assuming Q3, Q4, and Regents all earn the same grade:</p>
+
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>Target Final Grade</th>
+                        <th>Avg Needed (Q3, Q4, Regents)</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="results-body">
+                </tbody>
+            </table>
+
+            <div class="note" id="projection-note"></div>
+        </div>
+    </div>
+
+    <script>
+        function calculate() {
+            const q1 = parseFloat(document.getElementById('q1').value);
+            const q2 = parseFloat(document.getElementById('q2').value);
+            const midterm = parseFloat(document.getElementById('midterm').value);
+
+            // Validate inputs
+            if (isNaN(q1) || isNaN(q2) || isNaN(midterm)) {
+                alert('Please enter all three grades (Q1, Q2, and Midterm)');
+                return;
+            }
+
+            if (q1 < 0 || q1 > 100 || q2 < 0 || q2 > 100 || midterm < 0 || midterm > 100) {
+                alert('Please enter grades between 0 and 100');
+                return;
+            }
+
+            // Calculate current points earned
+            // Q1: 22%, Q2: 22%, Midterm: 4% = 48% total
+            const pointsEarned = (q1 * 0.22) + (q2 * 0.22) + (midterm * 0.04);
+            const currentAvg = pointsEarned / 0.48;
+
+            // Display current status
+            document.getElementById('points-earned').textContent = pointsEarned.toFixed(2);
+            document.getElementById('current-avg').textContent = currentAvg.toFixed(1) + '%';
+
+            // Calculate requirements for each target
+            // Remaining: Q3 (22%) + Q4 (22%) + Regents (8%) = 52%
+            const targets = [65, 70, 75, 80, 85, 90, 95];
+            const resultsBody = document.getElementById('results-body');
+            resultsBody.innerHTML = '';
+
+            targets.forEach(target => {
+                const pointsNeeded = target - pointsEarned;
+                // If Q3, Q4, Regents all equal X, then: X*0.22 + X*0.22 + X*0.08 = X*0.52 = pointsNeeded
+                const avgNeeded = pointsNeeded / 0.52;
+
+                let statusClass, statusText;
+                if (avgNeeded <= 0) {
+                    statusClass = 'achievable';
+                    statusText = 'Already achieved!';
+                } else if (avgNeeded <= 70) {
+                    statusClass = 'achievable';
+                    statusText = 'Achievable';
+                } else if (avgNeeded <= 85) {
+                    statusClass = 'achievable';
+                    statusText = 'Achievable with effort';
+                } else if (avgNeeded <= 100) {
+                    statusClass = 'difficult';
+                    statusText = 'Challenging but possible';
+                } else {
+                    statusClass = 'impossible';
+                    statusText = 'Not possible (>100 needed)';
+                }
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${target}</strong></td>
+                    <td class="grade-needed ${statusClass}">${avgNeeded <= 0 ? '0 (Done!)' : avgNeeded.toFixed(1)}</td>
+                    <td class="${statusClass}">${statusText}</td>
+                `;
+                resultsBody.appendChild(row);
+            });
+
+            // Add projection note
+            const projectionNote = document.getElementById('projection-note');
+            const projectedFinal = pointsEarned + (currentAvg * 0.52);
+            projectionNote.innerHTML = `
+                <strong>Projection:</strong> If the student maintains their current ${currentAvg.toFixed(1)}% average
+                for Q3, Q4, and the Regents, their final grade would be approximately <strong>${projectedFinal.toFixed(1)}%</strong>.
+            `;
+
+            // Show results
+            document.getElementById('results').style.display = 'block';
+
+            // Scroll to results
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Allow Enter key to trigger calculation
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    calculate();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
